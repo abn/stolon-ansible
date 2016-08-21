@@ -1,0 +1,13 @@
+---
+- name: configure consul service
+  become: yes
+  template:
+    src: consul-stolon-sentinel.json.j2
+    dest: /etc/consul/stolon-sentinel.json
+
+- name: reload consul service
+  become: yes
+  service:
+    name: consul
+    enabled: yes
+    state: reloaded

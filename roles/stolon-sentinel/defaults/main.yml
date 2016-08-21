@@ -1,0 +1,13 @@
+---
+# cluster configuration
+stolon_use_pg_rewind: true
+stolon_request_timeout: 10s
+stolon_sleep_interval: 5s
+stolon_keeper_fail_interval: 20s
+stolon_max_standbys_per_sender: 3
+stolon_synchronous_replication: false
+stolon_init_with_multiple_keepers: false
+#stolon_pg_parameters:
+#  archive_mode: on
+#  archive_command: 'envdir /etc/wal-e.d/env wal-e wal-push %p'
+#  archive_timeout: 60

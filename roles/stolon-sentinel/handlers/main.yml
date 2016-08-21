@@ -1,0 +1,9 @@
+---
+- name: restart stolon-sentinel
+  become: yes
+  service: >
+    name=stolon-sentinel
+    state=restarted
+    enabled=yes
+  tags:
+    - stolon-sentinel

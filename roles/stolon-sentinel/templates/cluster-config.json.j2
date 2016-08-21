@@ -1,0 +1,11 @@
+{
+    "request_timeout": "{{ stolon_request_timeout }}",
+    "sleep_interval": "{{ stolon_sleep_interval }}",
+    "keeper_fail_interval": "{{ stolon_keeper_fail_interval }}",
+    "max_standbys_per_sender": {{ stolon_max_standbys_per_sender }},
+    "synchronous_replication": {{ stolon_synchronous_replication | string | lower}},
+    "init_with_multiple_keepers": {{ stolon_init_with_multiple_keepers | string | lower }},
+    "use_pg_rewind": {{ stolon_use_pg_rewind | string | lower }},
+    "pg_parameters": {% if stolon_pg_parameters is defined %}{{ stolon_pg_parameters | to_nice_json }}{% else %}null{% endif %}
+
+}

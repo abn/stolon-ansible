@@ -1,0 +1,14 @@
+{
+  "service": {
+    "name": "{{ stolon_cluster_name }}-sentinel",
+    "checks": [
+      {
+        "id": "stolon.sentinel.{{ stolon_sentinel_port }}",
+        "name": "stolon sentinel tcp check on port {{ stolon_sentinel_port }}",
+        "tcp": "{{ stolon_listen_address }}:{{ stolon_sentinel_port }}",
+        "interval": "10s",
+        "timeout": "1s"
+      }
+    ]
+  }
+}

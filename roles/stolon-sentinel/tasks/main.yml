@@ -1,0 +1,60 @@
+---
+- name: install stolon-sentinel
+  become: yes
+  package: >
+    pkg="stolon-sentinel-{{ stolon_version }}"
+    state=installed
+  tags:
+    - stolon-sentinel
+    - package
+
+- name: add initial cluster config
+  become: yes
+  template:
+    src: cluster-config.json.j2
+    dest: /etc/stolon/cluster-config.json
+  tags:
+    - stolon-sentinel
+    - stolon-cluster-config
+
+- name: configure sysconfig environment variables
+  become: yes
+  lineinfile: >
+    dest=/etc/sysconfig/stolon-sentinel
+    regexp='^{{ item.name }}='
+    line="{{ item.name }}={{ item.value }}"
+    state=present
+  with_items:
+    - name: STSENTINEL_CLUSTER_NAME
+      value: "{{ stolon_cluster_name }}"
+    - name: STSENTINEL_LISTEN_ADDRESS
+      value: "{{ stolon_listen_address }}"
+    - name: STSENTINEL_STORE_BACKEND
+      value: "{{ stolon_store_backend }}"
+    - name: STSENTINEL_STORE_ENDPOINTS
+      value: "{{ stolon_store_endpoints }}"
+    - name: STSENTINEL_PORT
+      value: "{{ stolon_sentinel_port }}"
+    - name: STSENTINEL_KEEPER_PORT
+      value: "{{ stolon_keeper_port }}"
+  notify:
+    - restart stolon-sentinel
+  tags:
+    - stolon-sentinel
+    - stolon-sentinel-sysconfig
+
+- name: start and enable stolon-sentinel
+  become: yes
+  service:
+    name: stolon-sentinel
+    enabled: yes
+    state: started
+  tags:
+    - stolon-sentinel
+
+- include: consul.yml
+  when: consul_enabled is defined and consul_enabled
+  tags:
+    - consul-service
+    - stolon-sentinel
+    - stolon-sentinel-consul-service

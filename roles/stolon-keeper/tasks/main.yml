@@ -1,0 +1,116 @@
+---
+- name: install stolon-keeper
+  become: yes
+  package: >
+    pkg="stolon-keeper-{{ stolon_version }}"
+    state=installed
+  tags:
+    - stolon-keeper
+    - package
+
+- name: check if a database directory already exists
+  become: yes
+  stat: path={{ stolon_keeper_data_dir }}/postgres
+  register: stolon_existing_database_directory
+  tags:
+    - stolon-keeper
+    - stolon-keeper-migrate
+
+- include: migrate.yml
+  become: yes
+  when: stolon_keeper_migrate is defined and stolon_existing_database_directory.stat.islnk is not defined
+  tags:
+    - stolon-keeper
+    - stolon-keeper-migrate
+
+- name: configure sysconfig environment variables
+  become: yes
+  lineinfile: >
+    dest=/etc/sysconfig/stolon-keeper
+    regexp='^{{ item.name }}='
+    line="{{ item.name }}={{ item.value }}"
+    state=present
+  with_items:
+    - name: STKEEPER_ID
+      value: "{{ stolon_keeper_id }}"
+    - name: STKEEPER_CLUSTER_NAME
+      value: "{{ stolon_cluster_name }}"
+    - name: STKEEPER_DATA_DIR
+      value: "{{ stolon_keeper_data_dir }}"
+    - name: STKEEPER_LISTEN_ADDRESS
+      value: "{{ stolon_listen_address }}"
+    - name: STKEEPER_STORE_BACKEND
+      value: "{{ stolon_store_backend }}"
+    - name: STKEEPER_STORE_ENDPOINTS
+      value: "{{ stolon_store_endpoints }}"
+    - name: STKEEPER_PORT
+      value: "{{ stolon_keeper_port }}"
+    - name: STKEEPER_PG_LISTEN_ADDRESS
+      value: "{{ stolon_keeper_pg_listen_address }}"
+    - name: STKEEPER_PG_PORT
+      value: "{{ stolon_keeper_pg_port }}"
+    - name: STKEEPER_PG_REPL_USERNAME
+      value: "{{ stolon_keeper_pg_repl_user }}"
+    - name: STKEEPER_PG_REPL_PASSWORDFILE
+      value: "{{ stolon_keeper_pg_repl_passwordfile }}"
+    - name: STKEEPER_PG_SU_USERNAME
+      value: "{{ stolon_keeper_pg_su_user }}"
+    - name: STKEEPER_PG_SU_PASSWORDFILE
+      value: "{{ stolon_keeper_pg_su_passwordfile }}"
+  notify:
+    - restart stolon-keeper
+  tags:
+    - stolon-keeper
+    - stolon-keeper-sysconfig
+
+- name: configure pg bin path
+  become: yes
+  lineinfile: >
+    dest=/etc/sysconfig/stolon-keeper
+    regexp='^{{ item.name }}='
+    line="{{ item.name }}={{ item.value }}"
+    state=present
+  with_items:
+    - name: STKEEPER_PG_BIN_PATH
+      value: "{{ stolon_keeper_pg_bin_path }}"
+  when: stolon_keeper_pg_bin_path is defined
+  tags:
+    - stolon-keeper
+    - stolon-keeper-sysconfig
+    - stolon-keeper-sysconfig-pgbin
+
+- name: set replication user password
+  become: yes
+  copy: >
+    content={{ stolon_keeper_pg_repl_password }}
+    dest={{ stolon_keeper_pg_repl_passwordfile }}
+  tags:
+    - stolon-keeper
+    - stolon-keeper-password
+    - stolon-keeper-password-repl
+
+- name: set super user password
+  become: yes
+  copy: >
+    content={{ stolon_keeper_pg_su_password }}
+    dest={{ stolon_keeper_pg_su_passwordfile }}
+  tags:
+    - stolon-keeper
+    - stolon-keeper-password
+    - stolon-keeper-password-su
+
+- name: start and enable stolon-keeper
+  become: yes
+  service:
+    name: stolon-keeper
+    enabled: yes
+    state: started
+  tags:
+    - stolon-keeper
+
+- include: consul.yml
+  when: consul_enabled is defined and consul_enabled
+  tags:
+    - consul-service
+    - stolon-keeper
+    - stolon-keeper-consul-service

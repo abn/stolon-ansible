@@ -1,0 +1,49 @@
+---
+- name: install stolon-proxy
+  become: yes
+  package: >
+    pkg="stolon-proxy-{{ stolon_version }}"
+    state=installed
+  tags:
+    - stolon-proxy
+    - package
+
+- name: configure sysconfig environment variables
+  become: yes
+  lineinfile: >
+    dest=/etc/sysconfig/stolon-proxy
+    regexp='^{{ item.name }}='
+    line="{{ item.name }}={{ item.value }}"
+    state=present
+  with_items:
+    - name: STPROXY_CLUSTER_NAME
+      value: "{{ stolon_cluster_name }}"
+    - name: STPROXY_LISTEN_ADDRESS
+      value: "{{ stolon_listen_address }}"
+    - name: STPROXY_STORE_BACKEND
+      value: "{{ stolon_store_backend }}"
+    - name: STPROXY_STORE_ENDPOINTS
+      value: "{{ stolon_store_endpoints }}"
+    - name: STPROXY_PORT
+      value: "{{ stolon_proxy_port }}"
+  notify:
+    - restart stolon-proxy
+  tags:
+    - stolon-proxy
+    - stolon-proxy-sysconfig
+
+- name: start and enable stolon-proxy
+  become: yes
+  service:
+    name: stolon-proxy
+    enabled: yes
+    state: started
+  tags:
+    - stolon-proxy
+
+- include: consul.yml
+  when: consul_enabled is defined and consul_enabled
+  tags:
+    - consul-service
+    - stolon-proxy
+    - stolon-proxy-consul-service

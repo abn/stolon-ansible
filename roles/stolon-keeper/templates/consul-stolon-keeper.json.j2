@@ -1,0 +1,21 @@
+{
+  "service": {
+    "name": "{{ stolon_cluster_name }}-keeper",
+    "checks": [
+      {
+        "id": "stolon.keeper.{{ stolon_keeper_port }}",
+        "name": "stolon keeper tcp check on port {{ stolon_keeper_port }}",
+        "tcp": "{{ stolon_listen_address }}:{{ stolon_keeper_port }}",
+        "interval": "10s",
+        "timeout": "1s"
+      },
+      {
+        "id": "stolon.keeper.postgres.{{ stolon_keeper_pg_port }}",
+        "name": "stolon keeper tcp check on database port {{ stolon_keeper_pg_port }}",
+        "tcp": "{{ stolon_keeper_pg_listen_address }}:{{ stolon_keeper_pg_port }}",
+        "interval": "10s",
+        "timeout": "1s"
+      }
+    ]
+  }
+}

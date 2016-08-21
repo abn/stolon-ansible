@@ -1,0 +1,9 @@
+---
+- name: restart stolon-proxy
+  become: yes
+  service: >
+    name=stolon-proxy
+    state=restarted
+    enabled=yes
+  tags:
+    - stolon-proxy

@@ -1,0 +1,9 @@
+---
+- name: restart stolon-keeper
+  become: yes
+  service: >
+    name=stolon-keeper
+    state=restarted
+    enabled=yes
+  tags:
+    - stolon-keeper

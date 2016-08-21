@@ -1,0 +1,6 @@
+---
+- include: install.yml
+  when: role_stolon_completed is undefined
+
+- set_fact:
+    role_stolon_completed: true

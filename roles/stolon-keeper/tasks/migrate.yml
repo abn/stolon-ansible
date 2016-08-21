@@ -1,0 +1,54 @@
+---
+# TODO: improve thes operations to be more stateful using ansible modules
+# NOTE: this should only be used once for initial migration
+# PRECONDITIONS:
+#   1. postgres server on host has been stopped
+#   2. stolon data directory is empty
+- name: copy old database over to keeper data directory
+  become: yes
+  shell: "cp -r {{ stolon_keeper_migrate_data_dir }} {{ stolon_keeper_data_dir }}/postgres"
+
+- name: move postgresql.conf to postgresql-base.conf
+  become: yes
+  shell: "mv {{ stolon_keeper_data_dir }}/postgres/postgresql.conf {{ stolon_keeper_data_dir }}/postgres/postgresql-base.conf"
+
+- name: create conf.d directory
+  become: yes
+  shell: "mkdir {{ stolon_keeper_data_dir }}/postgres/conf.d"
+
+- name: ensure all hosts are allowed md5 authentication
+  become: yes
+  lineinfile: >
+    dest={{ stolon_keeper_data_dir }}/postgres/pg_hba.conf
+    regexp='^host\s+all\s+all\s+{{ item }}'
+    line='host all all {{ item }} md5'
+    state=present
+  with_items:
+    - '0.0.0.0/0'
+    - '::0/0'
+  tags:
+    - stolon-keeper-migrate-hbaconf
+
+- name: ensure replication user is allowed md5 authentication
+  become: yes
+  lineinfile: >
+    dest={{ stolon_keeper_data_dir }}/postgres/pg_hba.conf
+    regexp='^host\s+replication\s+{{ stolon_keeper_pg_repl_user }}\s+{{ item }}'
+    line='host replication {{ stolon_keeper_pg_repl_user }} {{ item }} md5'
+    state=present
+  with_items:
+    - '0.0.0.0/0'
+    - '::0/0'
+  tags:
+    - stolon-keeper-migrate-hbaconf
+
+- name: set cvversion file
+  copy: >
+    content={{ stolon_keeper_migrate_cvversion }}
+    dest={{ stolon_keeper_data_dir }}/cvversion
+  tags:
+    - stolon-keeper-migrate-cvversion
+
+- name: fix permissions on migrated files
+  become: yes
+  shell: "chown -R {{ stolon_keeper_user }}:{{ stolon_keeper_user }} {{ stolon_keeper_data_dir }}/*"

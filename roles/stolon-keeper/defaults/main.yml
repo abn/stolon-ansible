@@ -1,0 +1,26 @@
+---
+stolon_keeper_data_dir: /var/lib/stolon
+stolon_keeper_user: stolon
+
+# define this to ensure a deterministic id
+# stolon_keeper_id: keeper01
+
+# define this if initd is not in system path
+# stolon_keeper_pg_bin_path: /usr/pgsql-9.5/bin
+
+# migration configuration
+stolon_keeper_migrate: no
+stolon_keeper_migrate_data_dir: /var/lib/pgsql/9.5/data
+stolon_keeper_migrate_cvversion: 3
+
+stolon_keeper_secretes_dir: /etc/stolon/secrets
+
+# replication user credentials
+stolon_keeper_pg_repl_user: replication
+stolon_keeper_pg_repl_password: "{{ stolon_keeper_pg_repl_password }}"
+stolon_keeper_pg_repl_passwordfile: "{{ stolon_keeper_secretes_dir }}/pgpass.{{ stolon_keeper_pg_repl_user }}"
+
+# postgres (super user) credentials
+stolon_keeper_pg_su_user: postgres
+stolon_keeper_pg_su_password: "{{ stolon_keeper_pg_su_password }}"
+stolon_keeper_pg_su_passwordfile: "{{ stolon_keeper_secretes_dir }}/pgpass.{{ stolon_keeper_pg_su_user }}"

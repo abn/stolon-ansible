@@ -1,0 +1,9 @@
+---
+- name: install stolon
+  become: yes
+  package: >
+    pkg="stolon-{{ stolon_version }}"
+    state=installed
+  tags:
+    - stolon
+    - package

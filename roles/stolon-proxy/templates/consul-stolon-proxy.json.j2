@@ -1,0 +1,14 @@
+{
+  "service": {
+    "name": "{{ stolon_cluster_name }}",
+    "checks": [
+      {
+        "id": "stolon.proxy.{{ stolon_proxy_port }}",
+        "name": "stolon proxy tcp check on port {{ stolon_proxy_port }}",
+        "tcp": "{{ stolon_listen_address }}:{{ stolon_proxy_port }}",
+        "interval": "10s",
+        "timeout": "1s"
+      }
+    ]
+  }
+}
