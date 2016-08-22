@@ -1,0 +1,3 @@
+[submodule "roles/firewalld"]
+	path = roles/firewalld
+	url = https://github.com/abn/role-firewalld.git

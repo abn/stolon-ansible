@@ -1,3 +1,4 @@
 ---
 dependencies:
     - role: stolon
+    - { role: firewalld, firewalld_zone: "{{ stolon_firewalld_zone }}", firewalld_ports: ['{{ stolon_keeper_port }}/tcp', '{{ stolon_keeper_pg_port }}/tcp'], when: stolon_firewalld_enabled, tags: [ 'firewalld-config' ] }
