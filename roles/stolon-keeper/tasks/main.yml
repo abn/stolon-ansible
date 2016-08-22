@@ -18,7 +18,7 @@
 
 - include: migrate.yml
   become: yes
-  when: stolon_keeper_migrate is defined and stolon_existing_database_directory.stat.islnk is not defined
+  when: stolon_keeper_migrate is defined and stolon_keeper_migrate and stolon_existing_database_directory.stat.islnk is not defined
   tags:
     - stolon-keeper
     - stolon-keeper-migrate
