@@ -3,7 +3,7 @@ stolon_version: 0.2.0-2.b240c37.el7.centos
 stolon_cluster_name: cluster01
 stolon_store_backend: consul
 stolon_store_endpoints: "127.0.0.1:8500"
-stolon_listen_address: "{% if stolon_listen_address is defined %}{{ stolon_listen_address }}{% else %}{{ ansible_eth0.ipv4.address }}{% endif %}"
+stolon_listen_address: "{{ ansible_eth0.ipv4.address }}"
 stolon_sentinel_port: 6431
 stolon_keeper_port: 5431
 stolon_proxy_port: 5432
